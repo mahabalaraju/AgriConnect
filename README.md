@@ -28,3 +28,13 @@ docker-compose up -d
 farmer-service → Kafka → alert-service
                        → crop-service
                        → market-service
+
+
+
+1. API Gateway          ← Do this next
+2. Swagger docs         ← Add to all services
+3. Docker all services  ← Makes it production ready
+4. Eureka discovery     ← Makes it enterprise grade
+5. Zipkin tracing       ← Makes it interview impressive
+6. Scheduled jobs       ← Real business value
+7. Config server        ← Optional but good to know
