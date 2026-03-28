@@ -1,0 +1,66 @@
+version: '3.8'
+
+services:
+
+  # MySQL
+  mysql:
+    image: mysql:8.0
+    container_name: agri-mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: agridb
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+
+  # Zookeeper (required by Kafka)
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.5.0
+    container_name: agri-zookeeper
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+
+  # Kafka
+  kafka:
+    image: confluentinc/cp-kafka:7.5.0
+    container_name: agri-kafka
+    restart: always
+    depends_on:
+      - zookeeper
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: true
+
+  # Kafka UI (visual tool to see topics and messages)
+  kafka-ui:
+    image: provectuslabs/kafka-ui:latest
+    container_name: agri-kafka-ui
+    depends_on:
+      - kafka
+    ports:
+      - "8090:8080"
+    environment:
+      KAFKA_CLUSTERS_0_NAME: local
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:9092
+
+volumes:
+  mysql-data:
+
+
+#**What each service does:**
+
+#`mysql` — runs your database on port 3306, automatically creates `agridb`.
+
+#`zookeeper` — Kafka needs this to manage brokers. You don't interact with it directly.
+
+#`kafka` — runs on port 9092, this is what your `application.properties` connects to.
+
+#`kafka-ui` — this is a **bonus!** Opens a beautiful web UI at `http://localhost:8090` where you can see all Kafka topics and messages visually. Very helpful for learning.
